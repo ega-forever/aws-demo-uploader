@@ -1,0 +1,60 @@
+<nav class="navbar navbar-expand-md navbar-dark bg-dark mb-4">
+  <a class="navbar-brand" href="#">{{title}}</a>
+</nav>
+
+
+<main role="main" class="container">
+  <div class="row">
+    <div class="col-sm-12 col-md-6">
+      <div class="jumbotron">
+        <h1>Uploader example</h1>
+        <p class="lead">This example is a quick exercise to aws services.</p>
+
+        <input type="file"
+               id="file"
+               (change)="handleFileInput($event.target.files)">
+
+        <button class="btn btn-lg btn-primary" role="button" [disabled]="file === null && !fileUploadInProcess" (click)="postFile(file)">View docs &raquo;</button>
+      </div>
+    </div>
+    <div class="col-sm-12 col-md-6">
+      <form [formGroup]="filterFormGroup">
+        <div class="form-group form-inline">
+          Full text search: <input class="form-control ml-2" type="text" [formControl]="filter"/>
+        </div>
+      </form>
+      <table class="table">
+        <thead class="thead-dark">
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">First</th>
+          <th scope="col">Last</th>
+          <th scope="col">Age</th>
+        </tr>
+        </thead>
+        <tbody>
+
+        <tr *ngFor="let record of records$ | async;index as i">
+          <th scope="row">{{i}}</th>
+          <td>{{record.name}}</td>
+          <td>{{record.sirname}}</td>
+          <td>{{record.age}}</td>
+        </tr>
+
+        <tr>
+          <th scope="row">1</th>
+          <td>Mark</td>
+          <td>Otto</td>
+          <td>@mdo</td>
+        </tr>
+
+
+        </tbody>
+      </table>
+
+
+    </div>
+  </div>
+</main>
+
+<router-outlet></router-outlet>
