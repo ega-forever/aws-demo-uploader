@@ -10,11 +10,22 @@
         <h1>Uploader example</h1>
         <p class="lead">This example is a quick exercise to aws services.</p>
 
-        <input type="file"
-               id="file"
-               (change)="handleFileInput($event.target.files)">
+        <form [formGroup]="uploadFormGroup">
+          <div class="form-group row">
+            <input type="file"
+                   id="file"
+                   class="form-control form-control-file"
+                   (change)="handleFileInput($event.target.files)">
 
-        <button class="btn btn-lg btn-primary" role="button" [disabled]="file === null && !fileUploadInProcess" (click)="postFile(file)">View docs &raquo;</button>
+          </div>
+          <div class="form-group row">
+            <button class="btn btn-lg btn-primary" role="button" [disabled]="file === null && !fileUploadInProcess"
+                    (click)="postFile(file)">Upload
+            </button>
+          </div>
+        </form>
+
+
       </div>
     </div>
     <div class="col-sm-12 col-md-6">

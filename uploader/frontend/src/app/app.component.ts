@@ -15,6 +15,7 @@ export class AppComponent {
   private records$: Promise<Record[]>;
   private filter: FormControl = new FormControl('');
   private filterFormGroup: FormGroup = new FormGroup({ filter: this.filter });
+  private uploadFormGroup: FormGroup = new FormGroup({ });
   private file: File | null = null;
   private fileUploadInProcess: boolean = false;
 
@@ -55,10 +56,9 @@ export class AppComponent {
   }
 
   postFile(fileToUpload: File): void {
-    const endpoint = 'http://localhost:9090';
+    const endpoint = 'http://localhost:3000/upload';
     const formData: FormData = new FormData();
-    console.log('upload')
-    formData.append('fileKey', fileToUpload, fileToUpload.name);
+    formData.append('results', fileToUpload, fileToUpload.name);
     this.http
       .post(endpoint, formData, { headers: { Client: 'web' } })
       .pipe(

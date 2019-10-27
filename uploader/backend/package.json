@@ -1,0 +1,25 @@
+{
+  "name": "backend",
+  "version": "0.0.0",
+  "description": "",
+  "scripts": {
+    "start": "ts-node ./src/index.ts",
+    "tsc:watch": "tsc -w",
+    "tsc:build": "tsc",
+    "lint": "tslint --fix --project tsconfig.json"
+  },
+  "author": "zyev.egor@gmail.com",
+  "license": "AGPLv3",
+  "dependencies": {
+    "@types/express": "^4.17.1",
+    "aws-sdk": "^2.556.0",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1"
+  },
+  "devDependencies": {
+    "@types/node": "^12.11.7",
+    "ts-node": "^8.4.1",
+    "tslint": "^5.20.0",
+    "typescript": "^3.6.4"
+  }
+}
