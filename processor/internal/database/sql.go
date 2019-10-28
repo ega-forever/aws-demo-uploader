@@ -35,6 +35,22 @@ func (db *Database) Migrate() error {
 		return err
 	}
 
+	query = "CREATE INDEX IF NOT EXISTS exam_results_name_idx on exam_results using btree (name)"
+
+	_, err = db.db.Exec(db.ctx, query)
+
+	if err != nil {
+		return err
+	}
+
+	query = "CREATE INDEX IF NOT EXISTS exam_results_sirname_idx on exam_results using btree (sirname)"
+
+	_, err = db.db.Exec(db.ctx, query)
+
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
