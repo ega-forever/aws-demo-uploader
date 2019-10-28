@@ -5,6 +5,7 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { catchError } from 'rxjs/operators';
 import Timer = NodeJS.Timer;
+import { environment } from '../environments/environment';
 
 @Component({
   selector: 'app-root',
@@ -12,14 +13,14 @@ import Timer = NodeJS.Timer;
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  private title: string = 'uploader';
-  private records$: Promise<Record[]>;
-  private filter: FormControl = new FormControl('');
-  private filterFormGroup: FormGroup = new FormGroup({ filter: this.filter });
-  private uploadFormGroup: FormGroup = new FormGroup({});
-  private file: File | null = null;
-  private fileUploadInProcess: boolean = false;
-  private fileUploadCompleted: boolean = false;
+  public title: string = 'uploader';
+  public records$: Promise<Record[]>;
+  public filter: FormControl = new FormControl('');
+  public filterFormGroup: FormGroup = new FormGroup({ filter: this.filter });
+  public uploadFormGroup: FormGroup = new FormGroup({});
+  public file: File | null = null;
+  public fileUploadInProcess: boolean = false;
+  public fileUploadCompleted: boolean = false;
   private watchExamIntervalPid: Timer;
 
 
@@ -48,7 +49,7 @@ export class AppComponent {
   }
 
   private async search(text: string): Promise<Record[]> {
-    const endpoint = `http://localhost:3000/exams?text=${ text }`;
+    const endpoint = `${ environment.backend }/exams?text=${ text }`;
 
     return await this.http
       .get(endpoint, { headers: { Client: 'web' } })
@@ -58,7 +59,7 @@ export class AppComponent {
 
   }
 
-  private async handleFileInput(files: FileList) {
+  public async handleFileInput(files: FileList) {
     const file = files.item(0);
 
     if (!file.type.includes('excel') && !file.type.includes('openxml'))
@@ -69,13 +70,12 @@ export class AppComponent {
 
 
   private handleBackendError(e: HttpErrorResponse): ObservableInput<any> {
-    console.log(e);
     return throwError(
       'Something bad happened; please try again later.');
   }
 
   postFile(fileToUpload: File): void {
-    const endpoint = 'http://localhost:3000/upload';
+    const endpoint = `${ environment.backend }/upload`;
     const formData: FormData = new FormData();
     formData.append('results', fileToUpload, fileToUpload.name);
     this.http

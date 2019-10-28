@@ -24,7 +24,7 @@ const init = async () => {
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({ extended: true }));
 
-  express.static('public');
+  app.use('/', express.static('public'));
 
   const s3Service = new S3Service(config.bucket.region, config.bucket.name, config.bucket.apiVersion);
   const dbService = new DBService(config.db.uri);
