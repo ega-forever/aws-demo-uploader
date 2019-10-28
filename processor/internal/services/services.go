@@ -2,8 +2,8 @@ package services
 
 import (
 	"github.com/ega-forever/aws-demo-uploader/internal/interfaces"
-	log "github.com/sirupsen/logrus"
 	"github.com/tealeg/xlsx"
+	"strconv"
 	"sync"
 )
 
@@ -23,9 +23,11 @@ func NewProcessService(bucket interfaces.Bucket, queue interfaces.Queue, databas
 
 }
 
-func (ss *ProcessService) Listen() {
+func (ss *ProcessService) Listen() error {
 
 	eventCh, _ := ss.queue.Subscribe()
+
+	var serviceError error
 
 	wg := sync.WaitGroup{}
 	wg.Add(1)
@@ -35,30 +37,26 @@ func (ss *ProcessService) Listen() {
 			select {
 			case m := <-eventCh:
 				{
-					log.Print(m)
 					bytes, err := ss.bucket.GetFile(m.Filename)
 
 					if err != nil {
+						serviceError = err
 						wg.Done()
-						log.Error(err)
 					}
 
 					err = ss.writeFileBufferToDb(bytes)
 
 					if err != nil {
+						serviceError = err
 						wg.Done()
-						log.Error(err)
 					}
 
-					// todo process excel
-					//todo save to db
-					/*err := sqs.AckMessage(m)
+					err = ss.queue.AckMessage(m.Id)
 
 					if err != nil {
-						log.Print(err)
-					}*/
-
-					//wg.Done()
+						serviceError = err
+						wg.Done()
+					}
 				}
 
 			}
@@ -68,6 +66,7 @@ func (ss *ProcessService) Listen() {
 
 	wg.Wait()
 
+	return serviceError
 }
 
 func (ss *ProcessService) writeFileBufferToDb(data *[]byte) error {
@@ -82,12 +81,15 @@ func (ss *ProcessService) writeFileBufferToDb(data *[]byte) error {
 				continue
 			}
 
-			log.Print(row)
+			name := row.Cells[0].Value
+			sirname := row.Cells[1].Value
+			score, _ := strconv.Atoi(row.Cells[2].Value)
 
-			/*for _, cell := range row.Cells {
-				text := cell.String()
-				fmt.Printf("%s\n", text)
-			}*/
+			err = ss.database.SaveRecord(name, sirname, int64(score))
+
+			if err != nil {
+				return err
+			}
 		}
 	}
 

@@ -13,4 +13,5 @@ type Queue interface {
 }
 
 type Database interface {
+	SaveRecord(name string, sirname string, score int64) error
 }

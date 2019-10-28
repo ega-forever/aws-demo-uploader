@@ -1,4 +1,4 @@
-package queue
+package queue_sqs
 
 import (
 	"encoding/json"

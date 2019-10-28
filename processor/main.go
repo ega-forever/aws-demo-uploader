@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/ega-forever/aws-demo-uploader/internal/bucket"
+	database_sql "github.com/ega-forever/aws-demo-uploader/internal/database"
 	"github.com/ega-forever/aws-demo-uploader/internal/queue"
 	"github.com/ega-forever/aws-demo-uploader/internal/services"
 	log "github.com/sirupsen/logrus"
@@ -42,11 +43,28 @@ func main() {
 	bucketName := viper.GetString("BUCKET_NAME")
 	bucketRegion := viper.GetString("BUCKET_REGION")
 
-	sqs := queue.New(queueUri, queueRegion, 1, 10)
-	s3 := bucket.New(bucketName, bucketRegion)
+	databaseUri := viper.GetString("DATABASE_URI")
 
-	ps := services.NewProcessService(s3, sqs, nil)
+	sqs := queue_sqs.New(queueUri, queueRegion, 1, 10)
+	s3 := bucket_s3.New(bucketName, bucketRegion)
+	db, err := database_sql.New(databaseUri)
 
-	ps.Listen()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = db.Migrate()
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	ps := services.NewProcessService(s3, sqs, db)
+
+	err = ps.Listen()
+
+	if err != nil {
+		log.Fatal(err)
+	}
 
 }
