@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
 import { Record } from './models/Record';
-import { Observable, ObservableInput, throwError } from 'rxjs';
+import { ObservableInput, throwError } from 'rxjs';
 import { FormControl, FormGroup } from '@angular/forms';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { catchError, tap } from 'rxjs/operators';
+import { catchError } from 'rxjs/operators';
+import Timer = NodeJS.Timer;
 
 @Component({
   selector: 'app-root',
@@ -15,29 +16,46 @@ export class AppComponent {
   private records$: Promise<Record[]>;
   private filter: FormControl = new FormControl('');
   private filterFormGroup: FormGroup = new FormGroup({ filter: this.filter });
-  private uploadFormGroup: FormGroup = new FormGroup({ });
+  private uploadFormGroup: FormGroup = new FormGroup({});
   private file: File | null = null;
   private fileUploadInProcess: boolean = false;
+  private fileUploadCompleted: boolean = false;
+  private watchExamIntervalPid: Timer;
 
 
   constructor(private http: HttpClient) {
-    this.filter.valueChanges.subscribe(async (text: string) => {
-      if (text.length > 4)
-        this.records$ = this.search(text);
-    })
+    this.records$ = this.search('');
 
+    this.watchExams();
+
+    this.filter.valueChanges.subscribe(async (text: string) => {
+      if (text.length > 2 || !text.length) {
+        this.records$ = this.search(text);
+      }
+
+      !text.length ? this.watchExams() : this.clearWatchExams();
+    })
   }
 
-  // todo implement
+  private watchExams() {
+    this.watchExamIntervalPid = setInterval(() => {
+      this.records$ = this.search('');
+    }, 5000);
+  }
+
+  private clearWatchExams() {
+    clearInterval(this.watchExamIntervalPid);
+  }
+
   private async search(text: string): Promise<Record[]> {
-    console.log('super')
-    return [
-      {
-        name: 'Test',
-        sirname: Date.now().toString(),
-        age: Math.random() * 10
-      }
-    ]
+    const endpoint = `http://localhost:3000/exams?text=${ text }`;
+
+    return await this.http
+      .get(endpoint, { headers: { Client: 'web' } })
+      .pipe(
+        catchError(this.handleBackendError)
+      ).toPromise();
+
   }
 
   private async handleFileInput(files: FileList) {
@@ -49,7 +67,8 @@ export class AppComponent {
     this.file = file;
   }
 
-  private handleUploadError(e: HttpErrorResponse): ObservableInput<any> {
+
+  private handleBackendError(e: HttpErrorResponse): ObservableInput<any> {
     console.log(e);
     return throwError(
       'Something bad happened; please try again later.');
@@ -62,11 +81,12 @@ export class AppComponent {
     this.http
       .post(endpoint, formData, { headers: { Client: 'web' } })
       .pipe(
-        catchError(this.handleUploadError)
+        catchError(this.handleBackendError)
       ).subscribe((result) => {
-      console.log(result);
       this.fileUploadInProcess = false;
       this.file = null;
+      this.fileUploadCompleted = true;
+
     })
   }
 

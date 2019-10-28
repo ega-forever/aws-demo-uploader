@@ -8,6 +8,7 @@ import config from './config';
 import DBService from './services/DBService';
 import examRoutes from './routes/examRoutes';
 import * as bunyan from 'bunyan';
+import * as path from 'path';
 
 const logger = bunyan.createLogger({ name: 'backend' });
 
@@ -23,10 +24,13 @@ const init = async () => {
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({ extended: true }));
 
+  express.static('public');
+
   const s3Service = new S3Service(config.bucket.region, config.bucket.name, config.bucket.apiVersion);
   const dbService = new DBService(config.db.uri);
 
   await dbService.connect();
+  await dbService.migrate();
 
   dbService.once('error', (err) => {
     logger.error(err);

@@ -9,7 +9,7 @@ export default function (dbService: DBService): express.Router {
   const router = express.Router();
 
   router.get('/', asyncMiddleware(async (req: express.Request, res: express.Response) => {
-    const data = await dbService.getExamResults();
+    const data = await dbService.getExamResults(req.query.text);
     return res.send(data.rows);
   }));
 

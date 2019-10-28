@@ -10,6 +10,9 @@
         <h1>Uploader example</h1>
         <p class="lead">This example is a quick exercise to aws services.</p>
 
+        <ngb-alert *ngIf="fileUploadCompleted" (close)="fileUploadCompleted = false">Uploaded!</ngb-alert>
+
+
         <form [formGroup]="uploadFormGroup">
           <div class="form-group row">
             <input type="file"
@@ -40,23 +43,16 @@
           <th scope="col">#</th>
           <th scope="col">First</th>
           <th scope="col">Last</th>
-          <th scope="col">Age</th>
+          <th scope="col">Score</th>
         </tr>
         </thead>
         <tbody>
 
         <tr *ngFor="let record of records$ | async;index as i">
-          <th scope="row">{{i}}</th>
+          <th scope="row">{{i + 1}}</th>
           <td>{{record.name}}</td>
           <td>{{record.sirname}}</td>
-          <td>{{record.age}}</td>
-        </tr>
-
-        <tr>
-          <th scope="row">1</th>
-          <td>Mark</td>
-          <td>Otto</td>
-          <td>@mdo</td>
+          <td>{{record.score}}</td>
         </tr>
 
 
