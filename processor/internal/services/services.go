@@ -3,6 +3,7 @@ package services
 import (
 	"github.com/ega-forever/aws-demo-uploader/internal/interfaces"
 	"github.com/tealeg/xlsx"
+	"log"
 	"strconv"
 	"sync"
 )
@@ -25,7 +26,7 @@ func NewProcessService(bucket interfaces.Bucket, queue interfaces.Queue, databas
 
 func (ss *ProcessService) Listen() error {
 
-	eventCh, _ := ss.queue.Subscribe()
+	eventCh, errCh := ss.queue.Subscribe()
 
 	var serviceError error
 
@@ -57,6 +58,10 @@ func (ss *ProcessService) Listen() error {
 						serviceError = err
 						wg.Done()
 					}
+				}
+			case e := <-errCh:
+				{
+					log.Fatal(e)
 				}
 
 			}

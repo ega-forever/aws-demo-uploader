@@ -3,20 +3,17 @@ FROM golang:1.13 as builder
 WORKDIR /app
 
 COPY internal ./internal
-COPY Makefile .
+COPY main.go .
 COPY go.mod .
 
-RUN CGO_ENABLED=0 make build_scan
+RUN CGO_ENABLED=0 && go build -o app
 
 ###
 
 FROM ubuntu:18.04 as runner
 
 WORKDIR /app
-ENV REST_PORT=8081
 
-COPY --from=builder /app/service_scan .
-COPY .deploy/wait-for-it.sh .
+COPY --from=builder /app/app .
 
-EXPOSE 8081
-CMD ["./service_scan", "scan", "30", "1539992129"]
+CMD ["./app"]
